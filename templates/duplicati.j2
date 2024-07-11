@@ -1,0 +1,17 @@
+[Unit]
+Description={{ DUPLICATI_CONTAINER_NAME }}
+
+[Container]
+ContainerName={{ DUPLICATI_CONTAINER_NAME }}
+Image={{ DUPLICATI_IMAGE }}
+PublishPort={{ DUPLICATI_PORT }}:8200
+Volume={{ DUPLICATI_VOLUME }}:/data/
+Volume={{ VAULTWARDEN_VOLUME }}:/tobackup/
+AutoUpdate={{ DUPLICATI_AUTOUPDATE }}
+
+[Service]
+Restart=always
+Restart=on-failure
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,28 @@
+[Unit]
+Description={{ VAULTWARDEN_CONTAINER_NAME }}
+
+[Container]
+ContainerName={{ VAULTWARDEN_CONTAINER_NAME }}
+Image={{ VAULTWARDEN_IMAGE }}
+PublishPort={{ VAULTWARDEN_PORT }}:8080
+Volume={{ VAULTWARDEN_VOLUME }}:/data/
+AutoUpdate={{ VAULTWARDEN_AUTOUPDATE }}
+Environment=WEB_VAULT_ENABLED="true"
+Environment=SIGNUPS_ALLOWED={{ VAULTWARDEN_SIGNUPS_ALLOWED }}
+Environment=ADMIN_TOKEN={{ ADMIN_TOKEN }} 
+Environment=DOMAIN={{ DOMAIN }}
+Environment=TZ={{ VAULTWARDEN_TIMEZONE }}
+Environment=IP_HEADER={{ VAULTWARDEN_IP_HEADER }}
+Environment=ROCKET_PORT=8080
+Environment=SMTP_HOST={{ SMTP_HOST }}
+Environment=SMTP_FROM={{ SMTP_FROM }}
+Environment=SMTP_PORT={{ SMTP_PORT }}
+Environment=SMTP_USERNAME={{ SMTP_USERNAME }}
+Environment=SMTP_PASSWORD={{ SMTP_PASSWORD }}
+
+[Service]
+Restart=always
+Restart=on-failure
+
+[Install]
+WantedBy=default.target

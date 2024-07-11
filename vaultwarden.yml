@@ -1,0 +1,94 @@
+---
+# Ansible script to run Vaultwarden with Podman on RHEL and derivate systems
+# Don't open any ports, we will use a cloudflare tunnel to publish Vaultwarden.
+
+- hosts: localhost
+  remote_user: root
+
+  vars_files:
+    - vars/vault.yml
+
+  tasks:
+  - name: Packages | Ensure podman is installed
+    ansible.builtin.package:
+      name: podman
+      state: present
+    become: true
+   
+  - name: "Firewall | Ensure Vaultwarden {{ VAULTWARDEN_PORT }}/tcp is disabled"
+    ansible.posix.firewalld:
+      port: "{{ VAULTWARDEN_PORT }}/tcp"
+      permanent: true
+      state: disabled
+    become: true
+    notify:
+      - Restart firewalld
+
+  - name: Systemd | Ensure firewalld is enabled and started
+    ansible.builtin.systemd_service:
+      name: firewalld
+      enabled: true
+      state: started
+    become: true
+
+  - name: Users | Create vaultwarden user
+    ansible.builtin.user:
+      name: "{{ VAULTWARDEN_USER }}"
+      state: present
+    become: true
+
+  - name: Vaultwarden | Create Quadlet folder location
+    ansible.builtin.file:
+      path: ~/.config/containers/systemd
+      state: directory
+    become_user: "{{ VAULTWARDEN_USER }}"
+    become: true
+
+  - name: Vaultwarden | Create Quadlet
+    ansible.builtin.template:
+      src: templates/vaultwarden.j2
+      dest: ~/.config/containers/systemd/vaultwarden.container
+      mode: '0600'
+    become_user: "{{ VAULTWARDEN_USER }}"
+    become: true
+
+  - name: Systemd | Check if user is lingering
+    ansible.builtin.stat:
+      path: "/var/lib/systemd/linger/{{ VAULTWARDEN_USER }}"
+    register: user_lingering
+
+  - name: Systemd | Enable lingering is needed
+    ansible.builtin.command: "loginctl enable-linger {{ VAULTWARDEN_USER }}"
+    when:
+      - not user_lingering.stat.exists
+    become: true
+
+  - name: Systemd | Inform Systemd about the new services
+    ansible.builtin.systemd_service:
+      daemon_reload: true
+      scope: user
+    become_user: "{{ VAULTWARDEN_USER }}"
+    become: true
+      
+  - name: Systemd | Start the Vaultwarden service
+    ansible.builtin.systemd_service:
+      name: "{{ VAULTWARDEN_CONTAINER_NAME }}"
+      daemon_reload: true
+      state: started
+      scope: user
+    become_user: "{{ VAULTWARDEN_USER }}"
+    become: true
+
+## Finished message
+  - name: Finished
+    debug:
+      msg:
+        - "Finished installing Vaultwarden"
+        - "Publish vaultwarden on http://localhost:{{ VAULTWARDEN_PORT }}"
+
+  handlers:
+    - name: Restart firewalld
+      ansible.builtin.service:
+        name: firewalld
+        state: restarted
+      become: true

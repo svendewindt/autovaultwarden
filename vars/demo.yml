@@ -1,0 +1,27 @@
+---
+# Duplicati
+DUPLICATI_CONTAINER_NAME: duplicati
+DUPLICATI_IMAGE: docker.io/duplicati/duplicati
+DUPLICATI_PORT: 8200
+DUPLICATI_VOLUME: duplicati-data
+DUPLICATI_AUTOUPDATE: registry
+
+# Vaultwarden
+VAULTWARDEN_USER: vw-user
+VAULTWARDEN_CONTAINER_NAME: vaultwarden
+VAULTWARDEN_IMAGE: "docker.io/vaultwarden/server"
+VAULTWARDEN_AUTOUPDATE: registry # possible values registry, local
+VAULTWARDEN_PORT: 8080
+VAULTWARDEN_VOLUME: vw-data
+VAULTWARDEN_SIGNUPS_ALLOWED: false
+VAULTWARDEN_TIMEZONE: "Europe/Amsterdam"
+VAULTWARDEN_IP_HEADER: X-Forwarded-For # possible values: X-Forwarded-For, X-Real-IP
+ADMIN_TOKEN: "$argon2id$v=19$m=65540,t=3,p=4$TzhXcWox..."
+DOMAIN: "https://<domainname>"
+
+# SMTP
+SMTP_HOST: smtp.gmail.com
+SMTP_USERNAME: <username>
+SMTP_PORT: 587
+SMTP_PASSWORD: <smtp password>
+SMTP_FROM: <smtp from>
