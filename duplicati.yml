@@ -9,6 +9,18 @@
     - vars/vault.yml
 
   tasks:
+  - name: Packages | Ensure firewalld is installed
+    ansible.builtin.package:
+      name: firewalld
+      state: present
+    become: true
+    
+  - name: Packages | Ensure wget is installed
+    ansible.builtin.package:
+      name: wget
+      state: present
+    become: true
+    
   - name: Packages | Ensure podman is installed
     ansible.builtin.package:
       name: podman
